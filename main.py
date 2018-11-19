@@ -17,9 +17,7 @@ openpose_cmd = str(Path('./openpose/bin/OpenPoseDemo.exe')) + f' --image_dir {ip
 call(openpose_cmd)
 
 ## EDIT pose_keypoints_2d to pose_keypoints
-path = os.getcwd()+"\\temp_2dpoints"
-
-files = glob.glob(f'{path}\*.json')
+files = glob.glob(str(Path(f'{ip_path}_2dpoints/*.json')))
 for name in files:
     with open(name, 'r') as f:
         l = f.read().replace("pose_keypoints_2d","pose_keypoints")
@@ -31,7 +29,7 @@ os.chdir('3d-pose-baseline')
 os.makedirs('png',exist_ok=True)
 os.makedirs('gif_output',exist_ok=True)
 
-pose3d_cmd1 = 'python ' + str(Path('src/openpose_3dpose_sandbox.py'))+ ' --camera_frame --residual --batch_norm --dropout 0.5 --max_norm --evaluateActionWise --use_sh --epochs 200 --load 4874200 --openpose ' + str(Path('../temp_2dpoints')) + ' --write_gif'
+pose3d_cmd1 = 'python ' + str(Path('src/openpose_3dpose_sandbox.py'))+ ' --camera_frame --residual --batch_norm --dropout 0.5 --max_norm --evaluateActionWise --use_sh --epochs 200 --load 4874200 --openpose ' + str(Path(f'../{ip_path}_2dpoints')) + ' --write_gif'
 call(pose3d_cmd1)
 
 os.chdir('..')
