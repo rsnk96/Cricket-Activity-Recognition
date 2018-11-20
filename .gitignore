@@ -1,3 +1,21 @@
+# Folders of the project
+openpose
+3d-pose-baseline/gif_output
+3d-pose-baseline/png
+3d-pose-baseline/Animations
+3d-pose-baseline/data
+3d-pose-baseline/experiments
+dataset
+*~
+*.pyc
+*.h5
+*.mp4
+*.mpeg
+*.swp
+*.png
+*.tar.gz
+
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
