@@ -5,7 +5,8 @@ from random import sample
 from pathlib import Path
 from natsort import natsorted
 
-NUMBER_OF_FRAMES_DESIRED = 40
+#NUMBER_OF_FRAMES_DESIRED = 40
+NUMBER_OF_FRAMES_DESIRED = 34
 
 frames = natsorted(glob(f'{sys.argv[1]}/*'))
 chosen_ones = frames[::len(frames)//NUMBER_OF_FRAMES_DESIRED]

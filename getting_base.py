@@ -57,6 +57,6 @@ for root,dirs,files in os.walk(path):
         viz.show3Dpose(xtemp.flatten(),ax)
         nn = directry + '/'+t
         nn = os.path.splitext(nn)[0]
-        nn = nn+'.png'
-        plt.savefig(nn) 
-    
+#        nn1 = nn+'.png'
+#        plt.savefig(nn1) 
+        np.save(nn+'.npy',xtemp)
