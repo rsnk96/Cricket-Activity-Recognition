@@ -1,24 +1,25 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Thu Nov 22 09:56:30 2018
-
-@author: vivekkulkarni
-"""
-
 import os
 import natsort
 import imageio
 import cv2 
-path = '/home/vivekkulkarni/Cricket-Activity-Recognition/image_translated/points'
+import sys
+import imutils
+from pathlib import Path
+from glob import glob
 
-for root, dirs, files in os.walk(path):
-    f = natsort.natsorted(files)
-    files = [ fi for fi in f if not (fi.endswith(".json") or fi.endswith(".gif"))]
+if not sys.argv[1]:
+    paths = ['cover_1_2dpoints', 'cover_2_2dpoints', 'cover_4_2dpoints', 'cover_3_2dpoints', 'cover_4_2dpoints', 'cover_5_2dpoints', 'cover_6_2dpoints', 'Cut_1_2dpoints','Cut_4_2dpoints','Cut_8_2dpoints', 'edit_1_2dpoints', 'edit_2_2dpoints', 'edit_4_2dpoints', 'edit_3_2dpoints', 'edit_5_2dpoints', 'Sweep_1_Medium_2dpoints', 'Sweep_2_Medium_2dpoints']
+else:
+    paths = [sys.argv[1]]
+
+# path = Path(sys.argv[1])
+
+for p in paths:
+    path = Path(p)
+    files = natsort.natsorted(glob(str(path/'*.[pPjJ][nNpP][gGgG]')))
     img = []
     for name in files:
-        ptr = root+'/'+name
-        k = cv2.imread(ptr)
+        temp = cv2.cvtColor(cv2.imread(name), cv2.COLOR_BGR2RGB)
+        k = imutils.resize(temp, width=640)
         img.append(k)
-    if root is not path: 
-        imageio.mimsave(root+'.gif',img)
+    imageio.mimsave(str(path)+'.gif',img)

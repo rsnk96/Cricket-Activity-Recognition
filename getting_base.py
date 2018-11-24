@@ -8,6 +8,9 @@ Created on Wed Nov 21 22:36:04 2018
 import numpy as np
 import os 
 import natsort
+import sys
+from pathlib import Path
+sys.path.append(str(Path('3d-pose-baseline/src')))
 import viz
 import matplotlib.pyplot as plt
 
