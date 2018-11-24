@@ -22,13 +22,13 @@ for name in files:
     print(f'Fixing the 2d point json file {name} now')
     with open(name, 'r') as f:
         l = f.read().replace("pose_keypoints_2d","pose_keypoints")
-    keypoint_count=open(name,'r').read().count('\"pose_keypoints_2d\"')
+    with open(name,'w') as f:
+        f.write(l)
+    keypoint_count=open(name,'r').read().count('\"pose_keypoints\"')
     if keypoint_count != 1:
         print(f'Deleting file {name} with {keypoint_count} poses detected')
         os.remove(name)
-    else:
-        with open(name,'w') as f:
-            f.write(l)
+
 
 ## makedirs png and gif_output
 print('Running 3d pose regression now')
