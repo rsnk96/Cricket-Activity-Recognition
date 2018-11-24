@@ -73,8 +73,6 @@ def read_openpose_json(smooth=True, *args):
     drop_curves_plot.savefig(pngName)
     logger.info('writing gif_output/dirty_plot.png')
 
-    print(cache.keys())
-    print(len(cache[44]))
     # exit if no smoothing
     if not smooth:
         # return frames cache incl. 18 joints (x,y)
@@ -97,9 +95,15 @@ def read_openpose_json(smooth=True, *args):
         forward, back = ([] for _ in range(2))
         # joints x,y array
         _len = len(xy) # 36
+
+        cache_keys = list(cache.keys())
+        DONT_ADD_FRAME = False
+        if frame in last_frame_block:    # Last one's going to zero
+            DONT_ADD_FRAME = True
+    
         # create array of parallel frames (-3<n>3)
         for neighbor in range(1,4):
-            cache_keys = list(cache.keys())
+            
             # print('FRAME NUMBER:{}, INDEX:{}, NEIGHBOUR:{}'.format(frame, cache_keys.index(frame), neighbor), end='\t')
             try:
                 nextcache = cache[cache_keys[cache_keys.index(frame)+neighbor]]
@@ -147,25 +151,39 @@ def read_openpose_json(smooth=True, *args):
             x_med = np.median(sorted(x_v))
             y_med = np.median(sorted(y_v))
             # holding frame drops for joint
-            # if not x_med:
-            #     # allow fix from first frame
-            #     if frame:
-            #         # get x from last frame
-            #         print(x_v, np.median(sorted(x_v)))
-            #         input('TEST: {},{},{}, {}'.format(frame, x_med, x, smoothed.keys()))
-            #         x_med = smoothed[frame-1][x]
-            # # if joint is hidden y
-            # if not y_med:
-            #     # allow fix from first frame
-            #     if frame:
-            #         # get y from last frame
-            #         y_med = smoothed[frame-1][y]
+            if not x_med:
+                # allow fix from first frame
+                if frame:
+                    # get x from last frame
+                    try:
+                        x_med = smoothed[frame-1][x]
+                    except KeyError:
+                        print(x_v)
+                        try:
+                            x_med = x_v[np.nonzero(x_v)[0][0]]
+                        except IndexError:
+                            x_med=0
+                            DONT_ADD_FRAME = True
+            # if joint is hidden y
+            if not y_med:
+                # allow fix from first frame
+                if frame:
+                    # get y from last frame
+                    try:
+                        y_med = smoothed[frame-1][y]
+                    except KeyError:
+                        try:
+                            y_med = y_v[np.nonzero(y_v)[0][0]]
+                        except IndexError:
+                            y_med=0
+                            DONT_ADD_FRAME = True
             logger.debug("old X {0} sorted neighbor {1} new X {2}".format(xy[x],sorted(x_v), x_med))
             logger.debug("old Y {0} sorted neighbor {1} new Y {2}".format(xy[y],sorted(y_v), y_med))
             # build new array of joint x and y value
             frames_joint_median[x] = x_med 
             frames_joint_median[x+1] = y_med 
-        smoothed[frame] = frames_joint_median
+        if not DONT_ADD_FRAME:
+            smoothed[frame] = frames_joint_median
     # return frames cache incl. smooth 18 joints (x,y)
     return smoothed
 
@@ -328,7 +346,7 @@ def main(_):
             p3d = poses3d
             logger.debug(poses3d)
             viz.show3Dpose(p3d, ax, lcolor="#9b59b6", rcolor="#2ecc71")
-            np.save(str(Path(FLAGS.openpose)/f'frame{frame}.npy'), np.reshape( p3d, (len(data_utils.H36M_NAMES), -1) ))
+            np.save(str(Path(FLAGS.openpose.replace('_2dpoints', '_3dpoints'))/f'frame{frame}.npy'), np.reshape( p3d, (len(data_utils.H36M_NAMES), -1) ))
 
             pngName = 'png/pose_frame_{0}.png'.format(str(frame).zfill(12))
             plt.savefig(pngName)
