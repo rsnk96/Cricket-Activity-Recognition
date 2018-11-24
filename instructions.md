@@ -1,7 +1,7 @@
 # Execution procedures:
 The implementation is strictly windows based and would require the command prompt.
 
-##To Do
+## To Do
 -  Download OpenPose for windows machine from [here](https://github.com/CMU-Perceptual-Computing-Lab/openpose/releases/download/v1.4.0/openpose-1.4.0-win64-cpu-binaries.zip)
 
 -  Unzip this in the parent folder "..\\Cricket-Activity-Recognition" 
