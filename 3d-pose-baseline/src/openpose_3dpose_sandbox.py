@@ -73,6 +73,8 @@ def read_openpose_json(smooth=True, *args):
     drop_curves_plot.savefig(pngName)
     logger.info('writing gif_output/dirty_plot.png')
 
+    print(cache.keys())
+    print(len(cache[44]))
     # exit if no smoothing
     if not smooth:
         # return frames cache incl. 18 joints (x,y)
@@ -82,38 +84,41 @@ def read_openpose_json(smooth=True, *args):
         logger.info("found single json file")
         # return frames cache incl. 18 joints (x,y) on single image\json
         return cache
-
     if len(json_files) <= 8:
         raise Exception("need more frames, min 9 frames/json files for smoothing!!!")
-
     logger.info("start smoothing")
-
     # create frame blocks
-    head_frame_block = [int(re.findall("(\d+)", o)[0]) for o in json_files[:4]]
-    tail_frame_block = [int(re.findall("(\d+)", o)[0]) for o in json_files[-4:]]
-
+    first_frame_block = [int(re.findall("(\d+)", o)[0]) for o in json_files[:4]]
+    last_frame_block = [int(re.findall("(\d+)", o)[0]) for o in json_files[-4:]]
+    print('asdsad', first_frame_block, last_frame_block)
     ### smooth by median value, n frames 
     for frame, xy in cache.items():
-
         # create neighbor array based on frame index
         forward, back = ([] for _ in range(2))
-
         # joints x,y array
         _len = len(xy) # 36
-
         # create array of parallel frames (-3<n>3)
         for neighbor in range(1,4):
+            cache_keys = list(cache.keys())
+            # print('FRAME NUMBER:{}, INDEX:{}, NEIGHBOUR:{}'.format(frame, cache_keys.index(frame), neighbor), end='\t')
+            try:
+                nextcache = cache[cache_keys[cache_keys.index(frame)+neighbor]]
+            except IndexError:
+                pass
+            try:
+                prevcache = cache[cache_keys[cache_keys.index(frame)-neighbor]]
+            except IndexError:
+                pass
             # first n frames, get value of xy in postive lookahead frames(current frame + 3)
-            if frame in head_frame_block:
-                forward += cache[frame+neighbor]
+            if frame in first_frame_block:
+                forward += nextcache
             # last n frames, get value of xy in negative lookahead frames(current frame - 3)
-            elif frame in tail_frame_block:
-                back += cache[frame-neighbor]
+            elif frame in last_frame_block:
+                back += prevcache
             else:
                 # between frames, get value of xy in bi-directional frames(current frame -+ 3)     
-                forward += cache[frame+neighbor]
-                back += cache[frame-neighbor]
-
+                forward += nextcache
+                back += prevcache
         # build frame range vector 
         frames_joint_median = [0 for i in range(_len)]
         # more info about mapping in src/data_utils.py
@@ -121,11 +126,11 @@ def read_openpose_json(smooth=True, *args):
         for x in range(0,_len,2):
             # set x and y
             y = x+1
-            if frame in head_frame_block:
+            if frame in first_frame_block:
                 # get vector of n frames forward for x and y, incl. current frame
                 x_v = [xy[x], forward[x], forward[x+_len], forward[x+_len*2]]
                 y_v = [xy[y], forward[y], forward[y+_len], forward[y+_len*2]]
-            elif frame in tail_frame_block:
+            elif frame in last_frame_block:
                 # get vector of n frames back for x and y, incl. current frame
                 x_v =[xy[x], back[x], back[x+_len], back[x+_len*2]]
                 y_v =[xy[y], back[y], back[y+_len], back[y+_len*2]]
@@ -138,41 +143,37 @@ def read_openpose_json(smooth=True, *args):
                         back[x], back[x+_len], back[x+_len*2]]
                 y_v =[xy[y], forward[y], forward[y+_len], forward[y+_len*2],
                         back[y], back[y+_len], back[y+_len*2]]
-
             # get median of vector
             x_med = np.median(sorted(x_v))
             y_med = np.median(sorted(y_v))
-
             # holding frame drops for joint
-            if not x_med:
-                # allow fix from first frame
-                if frame:
-                    # get x from last frame
-                    input('TEST: {},{},{}, {}'.format(frame, x_med, x, smoothed.keys()))
-                    x_med = smoothed[frame-1][x]
-            # if joint is hidden y
-            if not y_med:
-                # allow fix from first frame
-                if frame:
-                    # get y from last frame
-                    y_med = smoothed[frame-1][y]
-
+            # if not x_med:
+            #     # allow fix from first frame
+            #     if frame:
+            #         # get x from last frame
+            #         print(x_v, np.median(sorted(x_v)))
+            #         input('TEST: {},{},{}, {}'.format(frame, x_med, x, smoothed.keys()))
+            #         x_med = smoothed[frame-1][x]
+            # # if joint is hidden y
+            # if not y_med:
+            #     # allow fix from first frame
+            #     if frame:
+            #         # get y from last frame
+            #         y_med = smoothed[frame-1][y]
             logger.debug("old X {0} sorted neighbor {1} new X {2}".format(xy[x],sorted(x_v), x_med))
             logger.debug("old Y {0} sorted neighbor {1} new Y {2}".format(xy[y],sorted(y_v), y_med))
-
             # build new array of joint x and y value
             frames_joint_median[x] = x_med 
             frames_joint_median[x+1] = y_med 
-		
-
         smoothed[frame] = frames_joint_median
-
+    # return frames cache incl. smooth 18 joints (x,y)
     return smoothed
+
 
 
 def main(_):
     
-    smoothed = read_openpose_json(smooth=False)
+    smoothed = read_openpose_json(smooth=True)
     plt.figure(2)
     smooth_curves_plot = show_anim_curves(smoothed, plt)
     pngName = 'gif_output/smooth_plot.png'
@@ -320,11 +321,9 @@ def main(_):
             ax = plt.subplot(gs1[subplot_idx - 1], projection='3d')
             ax.view_init(18, -70)    
             logger.debug(np.min(poses3d))
-            if np.min(poses3d) < -1000:
-                try:
-                    poses3d = before_pose
-                except UnboundLocalError:
-                    continue
+            before_pose = None
+            if np.min(poses3d) < -1000 and before_pose != None:
+                poses3d = before_pose
 
             p3d = poses3d
             logger.debug(poses3d)
