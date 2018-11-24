@@ -1,66 +1,58 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Thu Nov 15 23:37:10 2018
-
-@author: vivekkulkarni
-"""
-import cv2 
 import os
 import numpy as np
-from natsort import natsorted
-import random
+from glob import glob
 
-def make_the_images(path):
-    for root, dirs, files in os.walk(path):  
-        for filename in files:
-           name=os.path.splitext(filename)[0]
-           name = path+'/'+name
-           f = path+'/'+filename
-           print(name)
-           if not (os.path.isdir(name) or ('frame' in name)):
-               os.mkdir(name)
-           vidcap = cv2.VideoCapture(f)
-           success,image = vidcap.read()
-           count = 0
-           while success:
-               name1 = name+'/'+'frame'+str(count)+'.jpg'
-               cv2.imwrite(name1, image)     # save frame as JPEG file      
-               success,image = vidcap.read()
-               count += 1 
+standard_1 = 'points/cover_5/frame46.npy'
+standard_2 = 'points/cut_1/frame49.npy'
+standard_3 = 'points/cut_4/frame1.npy'
+standard_4 = 'points/edit_1/frame114.npy'
+standard_5 = 'points/edit_2/frame105.npy'
+standard_6 = 'points/sweep_2/frame2.npy'
 
-def get_train_test(directry):
-#    directry = '/home/vivekkulkarni/Cricket-Activity-Recognition/image_translated/points'    
-    di = []
-    nn = []    
-    for root,dirs,files in os.walk(directry):
-        f = natsorted(files)
-        files = [ fi for fi in f if not (fi.endswith(".png") or fi.endswith(".gif"))]
-        di.append(root)
-        dk = []
-        for name in files:
-            t = root+'/'+name
-            dk.append(np.load(t))
-        nn.append(dk)
-    nn.pop(0)
-    di.pop(0)
-        
-    NUMBER_OF_FRAMES_DESIRED = min([len(i) for i in nn])    
-    ll = []
-    y = []
-    for i in range(len(nn)):
-        frames = nn[i]
-        chosen_ones = frames[::len(frames)//NUMBER_OF_FRAMES_DESIRED]
-        chosen_ones = [chosen_ones[i] for i in random.sample   (range(len(chosen_ones)), NUMBER_OF_FRAMES_DESIRED)]       # To remove remainder
-        ll.append(chosen_ones)
-        l = os.path.split(di[i])[1]
-        if('cut' in l):
-            y.append(0)
-        elif('cover' in l):
-            y.append(1)
-        elif('sweep' in l):
-            y.append(2)
+s1 = np.load(standard_1)
+s2 = np.load(standard_2)
+s3 = np.load(standard_3)
+s4 = np.load(standard_4)
+s5 = np.load(standard_5)
+s6 = np.load(standard_6)
+
+s0 = (s1+s2+s3+s4+s5+s6)/6
+
+def scale(a):
+    shoulder_dist = 90.076
+    lhip_dist = 76.46
+    rhip_dist = 76.46
+    lrhip_dist = 76.46
+    k1 = a
+    sd = np.sqrt(np.sum((k1[1,:] - k1[25,:])**2))
+    lhd = np.sqrt(np.sum((k1[6,:] - k1[0,:])**2))
+    rhd = np.sqrt(np.sum((k1[1,:] - k1[0,:])**2))
+    lrhd = np.sqrt(np.sum((k1[1,:] - k1[0,:])**2))
+    sr = sd/shoulder_dist
+    lr = lhd/lhip_dist
+    rr = rhd/rhip_dist
+    lrr = lrhd/lrhip_dist
+    rt = (sr+lr+rr+lrr)/4
+    k1 = k1/rt
+    return k1
+    
+def normalise(a,i,ref):
+    ref1 = ref
+    if(i==0):
+        ref1 = a-s0
+    t = a-ref1    
+    return t,ref1            
+
+def make_3dpoints(path):
+    i = 0
+    files = glob(os.path.join(path,'*.npy'))
+    for name in files:
+        t = np.load(name)
+        if(i==0):
+            t,ref = normalise(t,i,0)
+            t = scale(t)
+            i=i+1
         else:
-            y.append(3)
-    return ll,y
-            
+            t,ref = normalise(t,i,ref)
+            t = scale(t)
+        np.save(path+'/'+name,t)        
