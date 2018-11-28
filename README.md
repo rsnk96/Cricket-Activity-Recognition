@@ -15,7 +15,6 @@ The implementation is strictly windows based and would require the command promp
 -  Run `python main.py "\\Cricket-Activity-Recognition\\folder\\to\\the_cricket_video"`
 
 
-
 ## To-Do
 Presentation to-dos
 - [X] Do it for all players in a field
@@ -24,13 +23,13 @@ Presentation to-dos
 - [X] Talk about pose normalization and motion smooothing in ppt
 
 Tech to-dos
-- [X] One file to rule them all - main.py and the video file
+- [X] One file to rule them all - `main.py` and the video file
 - [X] Octant based tracking
 - [X] Smoothen all gifs
 - [x] Normalize pose (scale and orientation)
 - [x] 3D Pose mapping to reference frame
 - [ ] Faster pose detection?
-
+- [ ] Take these off before upload
 ## BUGS AND SOLUTIONS:
 * If it comes checkpoint does not exist in Windows, it's because Windows has a maximum absolute length for the file name, and since the checkpoint folder is too deep in the folder, it doesn't recognize it
 * NOTE: Switched off smoothing as it's having some corner cases where it doesn't work (first line in main of `openpose_3dpose_sandbox.py`)
