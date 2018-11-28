@@ -1,4 +1,4 @@
-# Cricket-Activity-Recognition
+# Cricket-Shot-Recognition
 A repository for Cricket Activity Recognition
 
 32 joints are saved out of which only 17 move. For more details, see [here](https://github.com/una-dinosauria/3d-pose-baseline/blob/1ca400232ad6158050d8b292ac812d94dbb49d74/src/data_utils.py#L20)
@@ -19,7 +19,7 @@ The implementation is strictly windows based and would require the command promp
 ## To-Do
 Presentation to-dos
 - [X] Do it for all players in a field
-- [ ] Show that it can work on a much wider range of poses - include MSD's Helicopter for presentation
+- [X] Show that it can work on a much wider range of poses - include MSD's Helicopter for presentation
 - [X] Gif of cover drive
 - [X] Talk about pose normalization and motion smooothing in ppt
 
