@@ -33,12 +33,13 @@ This is not needed if you are using the zip containing all the data in the right
 -  Run `python main.py "location_to_video"`
 
 
+## Bugs and Solutions
+* If an error pops up saying `checkpoint does not exist` in Windows, it's because Windows has a maximum absolute length for the file name, and since the checkpoint folder is too deep in root folder, it doesn't recognize it
+
 Future Improvements
 - [ ] Faster pose detection - replace OpenPose with PoseNet?
 - [ ] Batter detection
 
-## Bugs and Solutions
-* If an error pops up saying `checkpoint does not exist` in Windows, it's because Windows has a maximum absolute length for the file name, and since the checkpoint folder is too deep in root folder, it doesn't recognize it
 
 ## Credits
 This project hugely derives from [OpenPose](https://github.com/CMU-Perceptual-Computing-Lab/openpose) and [3d-pose-baseline](https://github.com/una-dinosauria/3d-pose-baseline) and applies a octant-occupancy based classification on top of the time-series of the joints' motion
