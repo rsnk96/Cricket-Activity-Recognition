@@ -18,15 +18,15 @@ The implementation is strictly windows based and would require the command promp
 
 ## To-Do
 Presentation to-dos
-- [ ] Do it for all players in a field
+- [X] Do it for all players in a field
 - [ ] Show that it can work on a much wider range of poses - include MSD's Helicopter for presentation
-- [ ] Gif of cover drive
-- [ ] Talk about pose normalization and motion smooothing in ppt
+- [X] Gif of cover drive
+- [X] Talk about pose normalization and motion smooothing in ppt
 
 Tech to-dos
-- [ ] One file to rule them all
-- [ ] Match poses to different available template poses to classify
-- [ ] Smoothen all gifs
+- [X] One file to rule them all - main.py and the video file
+- [X] Octant based tracking
+- [X] Smoothen all gifs
 - [x] Normalize pose (scale and orientation)
 - [x] 3D Pose mapping to reference frame
 - [ ] Faster pose detection?
