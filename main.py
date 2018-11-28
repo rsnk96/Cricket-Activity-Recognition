@@ -51,3 +51,7 @@ print('Normalizing the 3d poses now')
 utilities.make_3dpoints(ip_path+'_3dpoints')
 print('Generating gif of the 3d poses now')
 utilities.generate_gif(ip_path+'_3dpoints', resize=False)
+
+# Classify poses
+classify_cmd1 = 'python classify.py ' + str(Path(ip_path+'_3dpoints'))
+Popen(classify_cmd1).communicate()

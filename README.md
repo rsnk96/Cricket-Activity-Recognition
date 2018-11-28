@@ -1,35 +1,48 @@
 # Cricket-Shot-Recognition
 A repository for Cricket Activity Recognition
 
-32 joints are saved out of which only 17 move. For more details, see [here](https://github.com/una-dinosauria/3d-pose-baseline/blob/1ca400232ad6158050d8b292ac812d94dbb49d74/src/data_utils.py#L20)
+**NOTE**: This project will run very slow with just the CPU binaries of OpenPose. If you want it to run real time, compile it with GPU optimizations specific to your machine
 
-## Execution procedures:
-The implementation is strictly windows based and would require the command prompt.
+## Setup procedure:
 
--  Download OpenPose for windows machine from [here](https://github.com/CMU-Perceptual-Computing-Lab/openpose/releases/download/v1.4.0/openpose-1.4.0-win64-cpu-binaries.zip)
+This is not needed if you are using the zip containing all the data in the right folders
+- Install `ffmpeg`, `opencv-python`, `natsort`, `tensorflow`
 
--  Unzip this in the parent folder `..\\Cricket-Activity-Recognition`
+- Clone this repository
 
--  Open the command prompt in the parent folder `..\\Cricket-Activity-Recognition`
+-  Download OpenPose for windows machine from [here](https://github.com/CMU-Perceptual-Computing-Lab/openpose/releases/download/v1.4.0/openpose-1.4.0-win64-cpu-binaries.zip) and unzip this in the parent folder `Cricket-Activity-Recognition`
 
--  Run `python main.py "\\Cricket-Activity-Recognition\\folder\\to\\the_cricket_video"`
+     Or, if you're on a linux machine, build it yourself from their [repository](https://github.com/CMU-Perceptual-Computing-Lab/openpose) and make sure the binaries are in the `<root of this repository>/openpose/bin` directory
+
+- Download the `H3.6M` 3D embeddings by running the following commands from within the root of this repository
+    ```bash
+    cd 3d-pose-baseline
+    mkdir data
+    cd data
+    wget https://www.dropbox.com/s/e35qv3n6zlkouki/h36m.zip
+    unzip h36m.zip
+    rm h36m.zip
+    cd ..
+    ```
+
+- Place the pre-trained weights of the 2D to 3D pose estimation model, downloadable [here](https://drive.google.com/file/d/0BxWzojlLp259MF9qSFpiVjl0cU0/view?usp=sharing) and keep it inside the folder `3d-pose-baseline`
+
+## Execution Guide
+-  Open the command prompt in the parent folder `Cricket-Activity-Recognition`
+
+-  Run `python main.py "location_to_video"`
 
 
-## To-Do
-Presentation to-dos
-- [X] Do it for all players in a field
-- [X] Show that it can work on a much wider range of poses - include MSD's Helicopter for presentation
-- [X] Gif of cover drive
-- [X] Talk about pose normalization and motion smooothing in ppt
+Future Improvements
+- [ ] Faster pose detection - replace OpenPose with PoseNet?
+- [ ] Batter detection
 
-Tech to-dos
-- [X] One file to rule them all - `main.py` and the video file
-- [X] Octant based tracking
-- [X] Smoothen all gifs
-- [x] Normalize pose (scale and orientation)
-- [x] 3D Pose mapping to reference frame
-- [ ] Faster pose detection?
-- [ ] Take these off before upload
-## BUGS AND SOLUTIONS:
-* If it comes checkpoint does not exist in Windows, it's because Windows has a maximum absolute length for the file name, and since the checkpoint folder is too deep in the folder, it doesn't recognize it
-* NOTE: Switched off smoothing as it's having some corner cases where it doesn't work (first line in main of `openpose_3dpose_sandbox.py`)
+## Bugs and Solutions
+* If an error pops up saying `checkpoint does not exist` in Windows, it's because Windows has a maximum absolute length for the file name, and since the checkpoint folder is too deep in root folder, it doesn't recognize it
+
+## Credits
+This project hugely derives from [OpenPose](https://github.com/CMU-Perceptual-Computing-Lab/openpose) and [3d-pose-baseline](https://github.com/una-dinosauria/3d-pose-baseline) and applies a octant-occupancy based classification on top of the time-series of the joints' motion
+
+## Authors
+* R S Nikhil Krishna
+* Vivek Kulkarni

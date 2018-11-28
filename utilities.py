@@ -119,8 +119,9 @@ def generate_gif(images_path, resize=True):
     files = natsort.natsorted(glob(str(path/'*.[pPjJ][nNpP][gGgG]')))
     imgs = []
     for name in files:
-        img = cv2.cvtColor(cv2.imread(name), cv2.COLOR_BGR2RGB)
+        img = imageio.imread(name)
         if resize==True:
             img = imutils.resize(img, width=640)
         imgs.append(img)
+    imgs = np.array([imgs[i] for i in range(0,len(imgs),10) ])
     imageio.mimsave(str(path)+'.gif',imgs)
